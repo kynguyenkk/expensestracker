@@ -4,6 +4,7 @@ import com.example.expensestracker.exception.DataNotFoundException;
 import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.ChangePasswordDTO;
 import com.example.expensestracker.model.dto.request.UserDTO;
+import com.example.expensestracker.model.dto.request.UserRegisterDTO;
 import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.model.entity.UserEntity;
 import com.example.expensestracker.model.enums.CategoryType;
@@ -31,10 +32,10 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserEntity createUser(UserDTO userDTO) throws Exception {
+    public UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception {
         //register user
-        String phoneNumber = userDTO.getPhoneNumber();
-        String email = userDTO.getEmail();
+        String phoneNumber = userRegisterDTO.getPhoneNumber();
+        String email = userRegisterDTO.getEmail();
         //kiểm tra xem số điện thoại đã tồn tại hay chưa
         if (userRepository.existsByPhoneNumber(phoneNumber) && userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Phone number and Email already exists");
@@ -45,17 +46,10 @@ public class UserService implements IUserService {
         }
         //convert from userDTO -> userEntity
         UserEntity newUser = UserEntity.builder()
-                .fullName(userDTO.getFullName())
-                .phoneNumber(userDTO.getPhoneNumber())
-                .email(userDTO.getEmail())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .birthDate(userDTO.getBirthDate())
-                .gender(Gender.valueOf(userDTO.getGender()))
-                .address(userDTO.getAddress())
+                .phoneNumber(userRegisterDTO.getPhoneNumber())
+                .email(userRegisterDTO.getEmail())
+                .password(passwordEncoder.encode(userRegisterDTO.getPassword()))
                 .build();
-
-05
-
         return userRepository.save(newUser);
     }
     @Override

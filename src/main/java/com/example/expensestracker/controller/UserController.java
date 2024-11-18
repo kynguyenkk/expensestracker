@@ -1,9 +1,6 @@
 package com.example.expensestracker.controller;
 
-import com.example.expensestracker.model.dto.request.CategoryDTO;
-import com.example.expensestracker.model.dto.request.ChangePasswordDTO;
-import com.example.expensestracker.model.dto.request.UserDTO;
-import com.example.expensestracker.model.dto.request.UserLoginDTO;
+import com.example.expensestracker.model.dto.request.*;
 import com.example.expensestracker.model.entity.UserEntity;
 import com.example.expensestracker.service.IUserService;
 import com.example.expensestracker.util.JwtTokenUtil;
@@ -29,7 +26,7 @@ public class UserController {
     private JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRegisterDTO userRegisterDTO, BindingResult result) {
        try {
            if (result.hasErrors()) {
                List<String> errorsMessages = result.getFieldErrors()
@@ -38,10 +35,10 @@ public class UserController {
                        .toList();
                return ResponseEntity.badRequest().body(errorsMessages);
            }
-           if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+           if (!userRegisterDTO.getPassword().equals(userRegisterDTO.getRetypePassword())) {
                return ResponseEntity.badRequest().body("Passwords do not match");
            }
-           UserEntity user = userService.createUser(userDTO);//return ResponseEntity.ok("Register successfully");
+           UserEntity user = userService.createUser(userRegisterDTO);//return ResponseEntity.ok("Register successfully");
            return ResponseEntity.ok("");
        }
        catch (Exception ex){
