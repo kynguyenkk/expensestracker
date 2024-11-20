@@ -2,6 +2,7 @@ package com.example.expensestracker.controller;
 
 import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
+import com.example.expensestracker.model.dto.response.ApiResponse;
 import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;
@@ -48,30 +49,30 @@ public class TransactionControlller {
     }
 
     @PutMapping("/{transactionId}")
-    public ResponseEntity<String> updateTransaction(@PathVariable Long transactionId, @Valid @RequestBody TransactionDTO transactionDTO, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<?> updateTransaction(@PathVariable Long transactionId, @Valid @RequestBody TransactionDTO transactionDTO, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try{
             // Lấy token từ header Authorization
             String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.updateTransaction(transactionId,userId,transactionDTO);
-            return ResponseEntity.ok("Update transaction successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Update transaction successfully"));
         }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 
     @DeleteMapping("/{transactionId}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable Long transactionId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long transactionId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try{
             // Lấy token từ header Authorization
             String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.deleteTransaction(transactionId,userId);
-            return ResponseEntity.ok("Delete category successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Delete category successfully"));
         }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 

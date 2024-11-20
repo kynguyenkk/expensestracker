@@ -1,6 +1,7 @@
 package com.example.expensestracker.controller;
 
 import com.example.expensestracker.model.dto.request.CategoryDTO;
+import com.example.expensestracker.model.dto.response.ApiResponse;
 import com.example.expensestracker.model.dto.response.CategoryListResponse;
 import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.entity.CategoryEntity;
@@ -36,41 +37,41 @@ public class CategoryController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorsMessages);
+                return ResponseEntity.badRequest().body(new ApiResponse("error", errorsMessages));
 
             }
             CategoryEntity newCategory = categoryService.createCategory(category,userId);
-            return ResponseEntity.ok("Insert category successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Insert category successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,@Valid @RequestBody CategoryDTO categoryDTO, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<?> updateCategory(@PathVariable Long categoryId,@Valid @RequestBody CategoryDTO categoryDTO, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try{
             // Lấy token từ header Authorization
             String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             categoryService.updateCategory(categoryId,userId,categoryDTO);
-            return ResponseEntity.ok("Update category successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Update category successfully"));
         }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try{
             // Lấy token từ header Authorization
             String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             categoryService.deleteCategory(categoryId,userId);
-            return ResponseEntity.ok("Delete category successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Delete category successfully"));
         }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
     @GetMapping("/expense")
