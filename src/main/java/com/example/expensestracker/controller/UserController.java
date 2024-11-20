@@ -79,7 +79,7 @@ public class UserController {
         try {
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
             // Trả về token trong response
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(new ApiResponse("success", token));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
