@@ -1,28 +1,24 @@
 package com.example.expensestracker.service;
 
 import com.example.expensestracker.exception.DataNotFoundException;
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
-import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.CategoryEntity;
+import com.example.expensestracker.model.entity.FixedTransactionEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.model.entity.UserEntity;
-import com.example.expensestracker.model.enums.CategoryType;
 import com.example.expensestracker.repositories.CategoryRepository;
+import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.util.TransactionSpecification;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -31,6 +27,7 @@ public class TransactionService implements ITransactionService {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final FixedTransactionRepository fixedTransactionRepository;
 
     @Override
     public TransactionEntity createTransaction(TransactionDTO transactionDTO,Long userId) throws Exception {
@@ -86,4 +83,44 @@ public class TransactionService implements ITransactionService {
                 .orElseThrow(() -> new DataNotFoundException("Không thể xóa giao dịch"));
         transactionRepository.delete(transaction);
     }
+
+
+
+
+//    @Scheduled(cron = "0 0 0 * * ?") // Chạy mỗi ngày lúc 00:00
+//    public void generateTransactionsFromFixed() {
+//        List<FixedTransactionEntity> fixedTransactions = fixedTransactionRepository.findByUserId(null); // Lấy tất cả
+//        LocalDate today = LocalDate.now();
+//
+//        for (FixedTransactionEntity fixedTransaction : fixedTransactions) {
+//            if (shouldGenerateTransaction(fixedTransaction, today)) {
+//                TransactionEntity transaction = new TransactionEntity();
+//                transaction.setUser(fixedTransaction.getUser());
+//                transaction.setCategory(fixedTransaction.getCategory());
+//                transaction.setAmount(fixedTransaction.getAmount());
+//                transaction.setTransactionDate(today);
+//                transaction.setFixedTransaction(fixedTransaction);
+//                transactionRepository.save(transaction);
+//            }
+//        }
+//    }
+//
+//    private boolean shouldGenerateTransaction(FixedTransactionEntity fixedTransaction, LocalDate date) {
+//        if (fixedTransaction.getEndDate() != null && date.isAfter(fixedTransaction.getEndDate())) {
+//            return false;
+//        }
+//        // Kiểm tra tần suất
+//        switch (fixedTransaction.getRepeatFrequency()) {
+//            case daily:
+//                return true;
+//            case weekly:
+//                return date.getDayOfWeek().getValue() == fixedTransaction.getStartDate().getDayOfWeek().getValue();
+//            case monthly:
+//                return date.getDayOfMonth() == fixedTransaction.getStartDate().getDayOfMonth();
+//            case yearly:
+//                return date.getDayOfYear() == fixedTransaction.getStartDate().getDayOfYear();
+//            default:
+//                return false;
+//        }
+//    }
 }

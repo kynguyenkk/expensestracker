@@ -1,13 +1,10 @@
 package com.example.expensestracker.service;
 
 import com.example.expensestracker.exception.DataNotFoundException;
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.ChangePasswordDTO;
 import com.example.expensestracker.model.dto.request.UserDTO;
 import com.example.expensestracker.model.dto.request.UserRegisterDTO;
-import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.model.entity.UserEntity;
-import com.example.expensestracker.model.enums.CategoryType;
 import com.example.expensestracker.model.enums.Gender;
 import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.util.JwtTokenUtil;

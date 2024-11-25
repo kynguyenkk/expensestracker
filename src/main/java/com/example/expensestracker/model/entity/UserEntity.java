@@ -47,9 +47,11 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private String preferredReport;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntity> transactions;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CategoryEntity> categories ;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<CategoryEntity> categories ;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FixedTransactionEntity> fixedTransactionEntities ;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

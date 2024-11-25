@@ -1,7 +1,7 @@
 package com.example.expensestracker.controller;
 
 import com.example.expensestracker.model.dto.response.MonthlyTransactionResponse;
-import com.example.expensestracker.service.FinanceService;
+import com.example.expensestracker.service.IFinanceService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +14,7 @@ public class FinanceController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    private FinanceService financeService;
+    private IFinanceService financeService;
 
     @GetMapping("")
     public MonthlyTransactionResponse getMonthlyData(@RequestParam int month, @RequestParam int year,@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {

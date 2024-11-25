@@ -6,6 +6,7 @@ import com.example.expensestracker.model.dto.response.ApiResponse;
 import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;
+import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.service.TransactionService;
 import com.example.expensestracker.service.UserService;
 import com.example.expensestracker.util.JwtTokenUtil;
@@ -27,6 +28,8 @@ public class TransactionControlller {
     private TransactionService transactionService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private FixedTransactionRepository fixedTransactionRepository;
 
     @PostMapping("")
     public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO, BindingResult bindingResult, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
@@ -38,13 +41,13 @@ public class TransactionControlller {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errors);
+                return ResponseEntity.badRequest().body(new ApiResponse("error", errors));
             }
             TransactionEntity transactionEntity = transactionService.createTransaction(transactionDTO,userId);
             TransactionResponse transactionResponse = TransactionResponse.fromEntity(transactionEntity);
             return ResponseEntity.ok(transactionResponse);
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 
@@ -95,7 +98,7 @@ public class TransactionControlller {
 
         return ResponseEntity.ok(transactions);
     }
-
+    
 
 
 }

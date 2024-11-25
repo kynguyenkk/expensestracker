@@ -37,7 +37,10 @@ public class AndroidSecurityConfig {
                                     String.format("/api/categories/**"),
                                     String.format("/api/transactions"),
                                     String.format("/api/transactions/**"),
-                                    String.format("/api/finance")
+                                    String.format("/api/finance"),
+                                    String.format("/api/**"),
+                                    String.format("api/fixed-transactions/**"),
+                                    String.format("api/fixed-transactions")
                             )
                             .permitAll()
                             .anyRequest().authenticated();

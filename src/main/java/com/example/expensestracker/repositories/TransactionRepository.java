@@ -4,6 +4,7 @@ import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,16 +16,22 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("SELECT t FROM TransactionEntity t WHERE t.transactionId = ?1 AND t.user.userId = ?2")
     Optional<TransactionEntity> findByTransactionIdAndUserId(Long transactionId, Long userId);
 
-    @Query("SELECT t FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate BETWEEN  ?2 AND  ?3")
+    @Query("SELECT t FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate BETWEEN  ?2 AND  ?3 ORDER BY t.transactionDate ASC")
     List<TransactionEntity> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT t.transactionDate, " +
-            "SUM(CASE WHEN t.category.categoryType = 'income' THEN t.amount ELSE 0 END) AS totalIncome, " +
-            "SUM(CASE WHEN t.category.categoryType = 'expense' THEN t.amount ELSE 0 END) AS totalExpense " +
+            "SUM(CASE WHEN t.category.type = 'income' THEN t.amount ELSE 0 END) AS totalIncome, " +
+            "SUM(CASE WHEN t.category.type = 'expense' THEN t.amount ELSE 0 END) AS totalExpense " +
             "FROM TransactionEntity t " +
-            "WHERE t.user.userId = :userId AND MONTH(t.transactionDate) = :month AND YEAR(t.transactionDate) = :year " +
-            "GROUP BY t.transactionDate")
-    List<Object[]> findDailyIncomeAndExpenseByCategoryType(@Param("userId") Long userId,
+            "WHERE t.user.userId = :userId AND FUNCTION('MONTH', t.transactionDate) = :month AND FUNCTION('YEAR', t.transactionDate) = :year " +
+            "GROUP BY t.transactionDate" +
+            " ORDER BY t.transactionDate ASC ")
+    List<Object[]> findDailyIncomeAndExpenseByType(@Param("userId") Long userId,
                                                            @Param("month") int month,
                                                            @Param("year") int year);
+    @Query("SELECT COUNT(t) > 0 FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate = ?2 AND t.category.categoryId = ?3")
+    boolean existsByUserIdAndTransactionDateAndCategoryId(Long userId, LocalDate transactionDate, Long categoryId);
+    @Modifying
+    @Query("DELETE FROM TransactionEntity t WHERE t.user.userId = :userId AND t.fixedTransaction.fixedTransactionId = :fixedTransactionId AND t.transactionDate BETWEEN :startDate AND :endDate")
+    void deleteByUserIdAndFixedTransactionIdAndTransactionDateBetween(Long userId, Long fixedTransactionId, LocalDate startDate, LocalDate endDate);
 }

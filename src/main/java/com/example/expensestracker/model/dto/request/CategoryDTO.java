@@ -17,6 +17,6 @@ public class CategoryDTO {
     @JsonProperty("category_name")
     private String categoryName;
     @NotEmpty(message = "Category's type cannot be empty")
-    @JsonProperty("category_type")
-    private String categoryType;
+    @JsonProperty("type")
+    private String type;
 }
