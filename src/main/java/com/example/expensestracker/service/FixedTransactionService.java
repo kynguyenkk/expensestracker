@@ -69,7 +69,7 @@ public class FixedTransactionService implements IFixedTransactionService {
         FixedTransactionEntity fixedTransaction = fixedTransactionRepository.findByFixedTransactionIdAndUserId(fixedTransactionId,userId)
                 .orElseThrow(() -> new DataNotFoundException("Giao dịch không tồn tại"));
         CategoryEntity existingCategory = categoryRepository
-                .findById(fixedTransaction.getCategory().getCategoryId())
+                .findById(fixedtransactionDTO.getCategoryId())
                 .orElseThrow(() -> new DataNotFoundException(
                         "Cannot find category with id " + fixedTransaction.getCategory().getCategoryId()));
         // 2. Lưu lại giá trị `startDate` cũ
