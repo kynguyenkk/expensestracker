@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,43 +112,51 @@ public class CategoryLimitService implements ICategoryLimitService {
         categoryLimitRepository.saveAll(entities);
     }
 
-//    // Tính phần trăm còn lại của giới hạn chi tiêu
-//    public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) {
-//        int currentMonth = LocalDate.now().getMonthValue();
-//        int currentYear = LocalDate.now().getYear();
-//
-//        // Lấy đối tượng User từ userId
-//        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        // Lấy giới hạn chi tiêu của tháng hiện tại
-//        List<CategoryLimitEntity> currentLimits = categoryLimitRepository.findByUserIdAndMonthAndYear(userId, currentMonth, currentYear);
-//        // Kiểm tra xem có giới hạn chi tiêu không
-//        // Tính phần trăm còn lại cho mỗi danh mục chi tiêu
-//        return currentLimits.stream()
-//                .map(limit -> {
-//                    // Lấy phần trăm chi tiêu đã sử dụng cho danh mục này
-//                    BigDecimal spentPercent = getSpentPercent(userId, currentMonth, currentYear, limit.getCategory().getCategoryId());
-//
-//                    // Tính phần trăm còn lại
-//                    BigDecimal remainingPercent = limit.getPercentLimit()
-//                            .subtract(spentPercent); // Sử dụng phương thức subtract() thay vì phép trừ trực tiếp
-//
-//                    return new CategoryLimitResponse(
-//                            limit.getCategory().getCategoryId(),
-//                            limit.getPercentLimit(),
-//                            remainingPercent.setScale(2, RoundingMode.HALF_UP) // Làm tròn đến 2 chữ số thập phân
-//                    );
-//                })
-//                .collect(Collectors.toList());
-//    }
-//
-//    // Giả lập hàm tính toán phần trăm đã chi tiêu, có thể thay đổi tùy vào cách tính chi tiêu của bạn
-//    private BigDecimal getSpentPercent(Long userId, int month, int year, Long categoryId) {
-//        // Ví dụ: giả sử chúng ta lấy tổng chi tiêu từ một bảng khác và tính toán phần trăm đã chi
-//        BigDecimal totalSpent = new BigDecimal("5000");;  // Tổng chi tiêu
-//        BigDecimal categoryLimit = new BigDecimal("10000");  // Giới hạn chi tiêu
-//        // Tính phần trăm đã chi
-//        BigDecimal percentSpent = totalSpent.multiply(new BigDecimal("100")).divide(categoryLimit, 2, RoundingMode.HALF_UP);
-//        return percentSpent;  // Trả về phần trăm đã chi tiêu
-//    }
+    public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) {
+        // Lấy tất cả giới hạn chi tiêu của người dùng cho tháng và năm hiện tại
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+
+        List<CategoryLimitEntity> categoryLimits = categoryLimitRepository
+                .findByUserIdAndMonthAndYear(userId, currentMonth, currentYear);
+
+        List<CategoryLimitResponse> remainingPercent = categoryLimits.stream()
+                .map(limit -> {
+                    // Tính tổng chi tiêu cho danh mục hiện tại
+                    BigDecimal totalSpent = transactionRepository
+                            .sumSpentByCategoryAndUser(userId, limit.getCategory().getCategoryId(), currentMonth, currentYear);
+
+                    // Tính tổng thu nhập của người dùng trong tháng
+                    BigDecimal totalIncome = transactionRepository
+                            .sumSpentByIncomeAndUser(userId, currentMonth, currentYear);
+
+                    // Lấy giới hạn chi tiêu của danh mục
+                    BigDecimal limitAmount = limit.getPercentLimit();
+
+                    // Đảm bảo giá trị chi tiêu không null
+                    BigDecimal spentAmount = totalSpent != null ? totalSpent : BigDecimal.ZERO;
+
+                    // Tính toán phần trăm còn lại của giới hạn
+                    BigDecimal remaining = BigDecimal.valueOf(100).subtract(
+                            (spentAmount.multiply(BigDecimal.valueOf(10000)))
+                                    .divide(totalIncome.multiply(limitAmount), 2, RoundingMode.HALF_UP)
+                    );
+
+                    // Nếu remaining tính toán được là âm, gán lại 0
+                    if (remaining.compareTo(BigDecimal.ZERO) < 0) {
+                        remaining = BigDecimal.ZERO;
+                    }
+
+                    // Trả về thông tin cho danh mục
+                    return new CategoryLimitResponse(
+                            limit.getCategory().getCategoryId(),
+                            limit.getPercentLimit(),
+                            remaining
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return remainingPercent;
+    }
+
 }

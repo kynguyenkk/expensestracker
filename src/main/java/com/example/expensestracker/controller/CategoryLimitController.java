@@ -51,7 +51,17 @@ public class CategoryLimitController {
 //        Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
 //        return categoryLimitService.calculateRemainingPercent(userId);
 //    }
+    @GetMapping("/remaining")
+    public ResponseEntity<List<CategoryLimitResponse>> getRemainingPercent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
+        // Trích xuất userId từ token
+        Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
 
+        // Lấy phần trăm còn lại của giới hạn chi tiêu theo danh mục
+        List<CategoryLimitResponse> remainingPercent = categoryLimitService.calculateRemainingPercent(userId);
+
+        return ResponseEntity.ok(remainingPercent);
+    }
     @GetMapping("/current")
     public ResponseEntity<List<CategoryLimitResponse>> getCurrentMonthLimits(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         int currentMonth = LocalDate.now().getMonthValue();

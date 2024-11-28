@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -34,4 +35,8 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Modifying
     @Query("DELETE FROM TransactionEntity t WHERE t.user.userId = :userId AND t.fixedTransaction.fixedTransactionId = :fixedTransactionId AND t.transactionDate BETWEEN :startDate AND :endDate")
     void deleteByUserIdAndFixedTransactionIdAndTransactionDateBetween(Long userId, Long fixedTransactionId, LocalDate startDate, LocalDate endDate);
+    @Query("SELECT SUM(t.amount) FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.category.categoryId = ?2 AND MONTH(t.transactionDate) = ?3 AND YEAR(t.transactionDate) = ?4")
+    BigDecimal sumSpentByCategoryAndUser(Long userId, Long categoryId, int month, int year);
+    @Query("SELECT SUM(t.amount) FROM TransactionEntity t WHERE t.user.userId = ?1 AND MONTH(t.transactionDate) = ?2 AND YEAR(t.transactionDate) = ?3 AND t.category.type = 'income'")
+    BigDecimal sumSpentByIncomeAndUser(Long userId, int month, int year);
 }
