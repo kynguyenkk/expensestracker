@@ -28,4 +28,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 
     @Query("SELECT c FROM CategoryEntity c WHERE c.type = :type ")
     List<CategoryEntity> findByType(@Param("type") Type type);
+    @Query("SELECT c FROM CategoryEntity c WHERE c.type = 'expense' OR c.categoryName = 'Tiết kiệm' ")
+    List<CategoryEntity> findByExpense();
 }

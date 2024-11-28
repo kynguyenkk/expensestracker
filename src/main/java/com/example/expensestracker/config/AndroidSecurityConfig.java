@@ -40,7 +40,9 @@ public class AndroidSecurityConfig {
                                     String.format("/api/finance"),
                                     String.format("/api/**"),
                                     String.format("api/fixed-transactions/**"),
-                                    String.format("api/fixed-transactions")
+                                    String.format("api/fixed-transactions"),
+                                    String.format("api/category-limits"),
+                                    String.format("api/category-limits/**")
                             )
                             .permitAll()
                             .anyRequest().authenticated();

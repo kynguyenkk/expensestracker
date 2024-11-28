@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -52,6 +51,8 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FixedTransactionEntity> fixedTransactionEntities ;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CategoryLimitEntity> spendingLimitEntities ;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

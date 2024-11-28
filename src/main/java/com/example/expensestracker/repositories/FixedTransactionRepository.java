@@ -21,4 +21,5 @@ public interface FixedTransactionRepository extends JpaRepository<FixedTransacti
             Long userId,
             LocalDate startDate,
             LocalDate endDate);
+
 }

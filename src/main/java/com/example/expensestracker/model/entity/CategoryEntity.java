@@ -27,4 +27,6 @@ public class CategoryEntity {
 //    private UserEntity user;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FixedTransactionEntity> fixedTransactionEntities ;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CategoryLimitEntity> spendingLimitEntities ;
 }
