@@ -52,7 +52,6 @@ public class FixedTransactionService implements IFixedTransactionService {
                     .category(existingCategory)
                     .title(fixedTransactionDTO.getTitle())
                     .amount(fixedTransactionDTO.getAmount())
-                    .type(Type.valueOf(fixedTransactionDTO.getType()))
                     .repeatFrequency(RepeatFrequency.valueOf(fixedTransactionDTO.getRepeatFrequency()))
                     .startDate(fixedTransactionDTO.getStartDate())
                     .endDate(fixedTransactionDTO.getEndDate())
@@ -78,7 +77,6 @@ public class FixedTransactionService implements IFixedTransactionService {
         fixedTransaction.setTitle(fixedtransactionDTO.getTitle());
         fixedTransaction.setAmount(fixedtransactionDTO.getAmount());
         fixedTransaction.setCategory(existingCategory);
-        fixedTransaction.setType(Type.valueOf(fixedtransactionDTO.getType()));
         fixedTransaction.setRepeatFrequency(RepeatFrequency.valueOf(fixedtransactionDTO.getRepeatFrequency()));
         fixedTransaction.setStartDate(fixedtransactionDTO.getStartDate());
         fixedTransaction.setEndDate(fixedtransactionDTO.getEndDate());

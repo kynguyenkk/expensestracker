@@ -1,16 +1,11 @@
 package com.example.expensestracker.controller;
 
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
 import com.example.expensestracker.model.dto.response.ApiResponse;
-import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;
-import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.service.TransactionService;
-import com.example.expensestracker.service.UserService;
 import com.example.expensestracker.util.JwtTokenUtil;
-import io.jsonwebtoken.Header;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +23,7 @@ public class TransactionControlller {
     private TransactionService transactionService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    @Autowired
-    private FixedTransactionRepository fixedTransactionRepository;
+
 
     @PostMapping("")
     public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO, BindingResult bindingResult, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {

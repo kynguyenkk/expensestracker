@@ -1,20 +1,13 @@
 package com.example.expensestracker.controller;
 
-import com.example.expensestracker.model.dto.request.CategoryDTO;
-import com.example.expensestracker.model.dto.response.ApiResponse;
+
 import com.example.expensestracker.model.dto.response.CategoryListResponse;
 import com.example.expensestracker.model.dto.response.CategoryResponse;
-import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.service.CategoryService;
 import com.example.expensestracker.util.JwtTokenUtil;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

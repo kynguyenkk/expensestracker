@@ -46,7 +46,6 @@ public class TransactionResponse {
         response.transactionDate = date;
         response.note = entity.getTitle();
         response.categoryName = entity.getCategory().getCategoryName();
-        response.type = String.valueOf(entity.getType());
         return response;
     }
 //    private List<TransactionResponse> generateFixedTransactionResponses(FixedTransactionEntity fixedTransaction, LocalDate startDate, LocalDate endDate) {

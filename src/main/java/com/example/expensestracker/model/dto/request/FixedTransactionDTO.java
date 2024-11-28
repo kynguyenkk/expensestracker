@@ -21,8 +21,6 @@ public class FixedTransactionDTO {
     private String title;
     @JsonProperty("amount")
     private BigDecimal amount;
-    @JsonProperty("type")
-    private String type;
     @JsonProperty("repeat_frequency")
     private String repeatFrequency;
     @JsonProperty("start_date")

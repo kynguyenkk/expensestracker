@@ -34,10 +34,6 @@ public class FixedTransactionEntity {
 
     @Column(name = "amount")
     private BigDecimal amount;
-
-    @Column(name="type")
-    @Enumerated(EnumType.STRING)
-    private Type type;
     @Enumerated(EnumType.STRING)
     @Column(name = "repeat_frequency")
     private RepeatFrequency repeatFrequency;
