@@ -10,8 +10,9 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 public interface IFixedTransactionService {
-    FixedTransactionEntity createFixedTransaction(FixedTransactionDTO fixedTransactionDTO, Long userId) throws Exception;
-    FixedTransactionEntity updateFixedTransaction(Long fixedTransactionId, Long userId, FixedTransactionDTO fixedTransactionDTO) throws Exception;
-    void deleteFixedTransaction(Long fixedTransactionId, Long userId) throws Exception;
-    List<FixedTransactionResponse> getFixedTransaction(Long userId);
+    public FixedTransactionEntity createFixedTransaction(FixedTransactionDTO fixedTransactionDTO, Long userId) throws Exception;
+    public FixedTransactionEntity updateFixedTransaction(Long fixedTransactionId, Long userId, FixedTransactionDTO fixedTransactionDTO) throws Exception;
+    public void deleteFixedTransaction(Long fixedTransactionId, Long userId) throws Exception;
+    public List<FixedTransactionResponse> getFixedTransaction(Long userId);
+    public void generateTransactionsForToday();
 }

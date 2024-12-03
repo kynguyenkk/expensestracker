@@ -2,10 +2,12 @@ package com.example.expensestracker.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AutoTransactionSchedulerService {
     @Autowired
-    private FixedTransactionService fixedTransactionService;
+    private IFixedTransactionService fixedTransactionService;
 
     /**
      * Scheduler chạy mỗi ngày lúc 00:00 để tạo giao dịch tự động.

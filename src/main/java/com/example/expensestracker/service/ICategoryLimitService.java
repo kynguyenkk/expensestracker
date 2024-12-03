@@ -9,5 +9,5 @@ public interface ICategoryLimitService {
 //    public void saveLimits(Long userId, List<CategoryLimitResponse> limits, int month, int year);
 //    public List<CategoryLimitResponse> calculateRemainingPercent(Long userId);
 public void saveLimits(Long userId, List<CategoryLimitResponse> limits, int month, int year);
-    public List<CategoryLimitResponse> calculateRemainingPercent(Long userId);
+    public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) throws Exception;
 }

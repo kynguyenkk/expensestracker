@@ -9,8 +9,9 @@ import com.example.expensestracker.service.ICategoryLimitService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -52,15 +53,19 @@ public class CategoryLimitController {
 //        return categoryLimitService.calculateRemainingPercent(userId);
 //    }
     @GetMapping("/remaining")
-    public ResponseEntity<List<CategoryLimitResponse>> getRemainingPercent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-        String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
-        // Trích xuất userId từ token
-        Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
+    public ResponseEntity<?> getRemainingPercent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        try {
+            String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
+            // Trích xuất userId từ token
+            Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
+            // Lấy phần trăm còn lại của giới hạn chi tiêu theo danh mục
+            List<CategoryLimitResponse> remainingPercent = categoryLimitService.calculateRemainingPercent(userId);
 
-        // Lấy phần trăm còn lại của giới hạn chi tiêu theo danh mục
-        List<CategoryLimitResponse> remainingPercent = categoryLimitService.calculateRemainingPercent(userId);
+            return ResponseEntity.ok(remainingPercent);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
 
-        return ResponseEntity.ok(remainingPercent);
     }
     @GetMapping("/current")
     public ResponseEntity<List<CategoryLimitResponse>> getCurrentMonthLimits(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {

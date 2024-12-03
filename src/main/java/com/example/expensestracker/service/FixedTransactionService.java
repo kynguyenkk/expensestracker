@@ -8,7 +8,6 @@ import com.example.expensestracker.model.entity.FixedTransactionEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.model.entity.UserEntity;
 import com.example.expensestracker.model.enums.RepeatFrequency;
-import com.example.expensestracker.model.enums.Type;
 import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
