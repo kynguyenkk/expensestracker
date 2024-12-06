@@ -22,9 +22,7 @@ public class FixedTransactionResponse {
     private String title;
     private String categoryName;
     private BigDecimal amount;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     public static FixedTransactionResponse fromEntity(FixedTransactionEntity fixedTransactionEntity) {
         FixedTransactionResponse fixedTransactionResponse = FixedTransactionResponse.builder()

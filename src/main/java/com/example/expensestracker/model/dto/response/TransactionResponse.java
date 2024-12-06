@@ -25,7 +25,6 @@ public class TransactionResponse {
     private Long transactionId;
     private String categoryName;
     private BigDecimal amount;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate transactionDate;
     private String note;
     private String type;
