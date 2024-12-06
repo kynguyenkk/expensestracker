@@ -1,14 +1,19 @@
 package com.example.expensestracker.service;
 
+import com.example.expensestracker.repositories.UserRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AutoTransactionSchedulerService {
     @Autowired
     private IFixedTransactionService fixedTransactionService;
-
+    @Autowired
+    private UserRepository userRepository;
     /**
      * Scheduler chạy mỗi ngày lúc 00:00 để tạo giao dịch tự động.
      */
@@ -22,4 +27,9 @@ public class AutoTransactionSchedulerService {
             e.printStackTrace();
         }
     }
+    // Gọi tự động sao chép giới hạn khi ứng dụng bắt đầu
+//    @PostConstruct
+//    public void init() {
+//        fixedTransactionService.generateTransactionsForToday();
+//    }
 }

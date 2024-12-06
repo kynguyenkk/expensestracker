@@ -3,6 +3,7 @@ package com.example.expensestracker.model.dto.response;
 import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.model.entity.FixedTransactionEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
@@ -24,6 +25,7 @@ public class TransactionResponse {
     private Long transactionId;
     private String categoryName;
     private BigDecimal amount;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate transactionDate;
     private String note;
     private String type;
