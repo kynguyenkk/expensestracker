@@ -22,6 +22,8 @@ public class FixedTransactionResponse {
     private String title;
     private String categoryName;
     private BigDecimal amount;
+    @JsonProperty("repeate_frequency")
+    private String repeateFrequency;
     private LocalDate startDate;
     private LocalDate endDate;
     public static FixedTransactionResponse fromEntity(FixedTransactionEntity fixedTransactionEntity) {
@@ -30,6 +32,7 @@ public class FixedTransactionResponse {
                 .categoryId(fixedTransactionEntity.getCategory().getCategoryId())
                 .title(fixedTransactionEntity.getTitle())
                 .categoryName(fixedTransactionEntity.getCategory().getCategoryName())
+                .repeateFrequency(String.valueOf(fixedTransactionEntity.getRepeatFrequency()))
                 .amount(fixedTransactionEntity.getAmount())
                 .startDate(fixedTransactionEntity.getStartDate())
                 .endDate(fixedTransactionEntity.getEndDate())
