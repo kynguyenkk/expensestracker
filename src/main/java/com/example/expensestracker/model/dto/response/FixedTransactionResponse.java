@@ -28,6 +28,7 @@ public class FixedTransactionResponse {
         FixedTransactionResponse fixedTransactionResponse = FixedTransactionResponse.builder()
                 .fixedTransactionId(fixedTransactionEntity.getFixedTransactionId())
                 .categoryId(fixedTransactionEntity.getCategory().getCategoryId())
+                .title(fixedTransactionEntity.getTitle())
                 .categoryName(fixedTransactionEntity.getCategory().getCategoryName())
                 .amount(fixedTransactionEntity.getAmount())
                 .startDate(fixedTransactionEntity.getStartDate())
