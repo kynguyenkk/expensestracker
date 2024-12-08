@@ -43,7 +43,9 @@ public class ReportService implements IReportService {
         // Tính toán danh sách chi tiêu theo danh mục
         BigDecimal finalTotalIncome = totalIncome;
         BigDecimal finalTotalExpense = totalExpense;
-        List<CategoryReport> categoryReports = categoryLimits.stream().map(limit -> {
+        List<CategoryReport> categoryReports = categoryLimits.stream().filter(limit -> "expense".equalsIgnoreCase(String.valueOf(limit.getCategory().getType())) ||
+                "Tiết kiệm".equalsIgnoreCase(limit.getCategory().getCategoryName()))
+                .map(limit -> {
             BigDecimal spentAmount = transactionRepository.sumSpentByCategoryAndUser(userId, limit.getCategory().getCategoryId(), month, year);
             if (spentAmount == null) spentAmount = BigDecimal.ZERO;
 
