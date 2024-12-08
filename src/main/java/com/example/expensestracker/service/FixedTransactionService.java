@@ -121,7 +121,7 @@ public class FixedTransactionService implements IFixedTransactionService {
 
 
         while (!startDate.isAfter(loopEndDate)) {
-            if (!transactionExists(user.getUserId(), startDate, category.getCategoryId())) {
+            if (!transactionExists(user.getUserId(), startDate, category.getCategoryId(), fixedTransaction.getFixedTransactionId())) {
                 TransactionEntity transaction = TransactionEntity.builder()
                         .user(user)
                         .category(category)
@@ -136,9 +136,9 @@ public class FixedTransactionService implements IFixedTransactionService {
         }
     }
 
-    private boolean transactionExists(Long userId, LocalDate date, Long categoryId) {
+    private boolean transactionExists(Long userId, LocalDate date, Long categoryId,Long fixTransactionId) {
         // Kiểm tra xem giao dịch đã tồn tại chưa
-        return transactionRepository.existsByUserIdAndTransactionDateAndCategoryId(userId, date, categoryId);
+        return transactionRepository.existsByUserIdAndTransactionDateAndCategoryIdAAndFixedTransactionId(userId, date, categoryId,fixTransactionId);
     }
     public void generateTransactionsForToday() {
         LocalDate today = LocalDate.now();
@@ -151,7 +151,7 @@ public class FixedTransactionService implements IFixedTransactionService {
                     (fixedTransaction.getEndDate() == null || fixedTransaction.getEndDate().isAfter(today) || fixedTransaction.getEndDate().isEqual(today))) {
 
                 // Kiểm tra xem giao dịch đã tồn tại hay chưa
-                if (!transactionExists(fixedTransaction.getUser().getUserId(), today, fixedTransaction.getCategory().getCategoryId())) {
+                if (!transactionExists(fixedTransaction.getUser().getUserId(), today, fixedTransaction.getCategory().getCategoryId(), fixedTransaction.getFixedTransactionId())) {
                     TransactionEntity transaction = TransactionEntity.builder()
                             .user(fixedTransaction.getUser())
                             .category(fixedTransaction.getCategory())

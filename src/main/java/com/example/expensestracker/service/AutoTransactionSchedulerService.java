@@ -27,9 +27,9 @@ public class AutoTransactionSchedulerService {
             e.printStackTrace();
         }
     }
-    // Gọi tự động sao chép giới hạn khi ứng dụng bắt đầu
-//    @PostConstruct
-//    public void init() {
-//        fixedTransactionService.generateTransactionsForToday();
-//    }
+     //Gọi tự động sao chép giới hạn khi ứng dụng bắt đầu
+    @PostConstruct
+    public void init() {
+        fixedTransactionService.generateTransactionsForToday();
+    }
 }

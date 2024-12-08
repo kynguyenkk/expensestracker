@@ -30,8 +30,8 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     List<Object[]> findDailyIncomeAndExpenseByType(@Param("userId") Long userId,
                                                            @Param("month") int month,
                                                            @Param("year") int year);
-    @Query("SELECT COUNT(t) > 0 FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate = ?2 AND t.category.categoryId = ?3")
-    boolean existsByUserIdAndTransactionDateAndCategoryId(Long userId, LocalDate transactionDate, Long categoryId);
+    @Query("SELECT COUNT(t) > 0 FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate = ?2 AND t.category.categoryId = ?3 AND t.fixedTransaction.fixedTransactionId = ?4")
+    boolean existsByUserIdAndTransactionDateAndCategoryIdAAndFixedTransactionId(Long userId, LocalDate transactionDate, Long categoryId,Long fixedTransactionId);
     @Modifying
     @Query("DELETE FROM TransactionEntity t WHERE t.user.userId = :userId AND t.fixedTransaction.fixedTransactionId = :fixedTransactionId AND t.transactionDate BETWEEN :startDate AND :endDate")
     void deleteByUserIdAndFixedTransactionIdAndTransactionDateBetween(Long userId, Long fixedTransactionId, LocalDate startDate, LocalDate endDate);
