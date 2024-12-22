@@ -4,16 +4,15 @@ import com.example.expensestracker.exception.DataNotFoundException;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.CategoryEntity;
-import com.example.expensestracker.model.entity.FixedTransactionEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.model.entity.UserEntity;
 import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
+import com.example.expensestracker.service.InterfaceService.ITransactionService;
 import com.example.expensestracker.util.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -68,7 +67,7 @@ public class TransactionService implements ITransactionService {
                 .orElseThrow(() -> new DataNotFoundException("Giao dịch không tồn tại"));
         // Thực hiện cập nhật nếu danh mục không phải là mặc định
         CategoryEntity category = categoryRepository.findById(transactionDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + transactionDTO.getCategoryId()));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục có id: " + transactionDTO.getCategoryId()));
         transaction.setCategory(category);
         transaction.setTransactionDate(transactionDTO.getTransactionDate());
         transaction.setAmount(transactionDTO.getAmount());

@@ -12,6 +12,7 @@ import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
+import com.example.expensestracker.service.InterfaceService.IFixedTransactionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,11 +42,11 @@ public class FixedTransactionService implements IFixedTransactionService {
             CategoryEntity existingCategory = categoryRepository
                     .findById(fixedTransactionDTO.getCategoryId())
                     .orElseThrow(() -> new DataNotFoundException(
-                            "Cannot find category with id " + fixedTransactionDTO.getCategoryId()));
+                            "Không tìm thấy danh mục có id: " + fixedTransactionDTO.getCategoryId()));
             UserEntity existingUser = userRepository
                     .findById(userId)
                     .orElseThrow(() -> new DataNotFoundException(
-                            "Cannot find category with id " + userId));
+                            "Không tìm thấy danh mục có id: " + userId));
             FixedTransactionEntity fixedTransactionEntity = FixedTransactionEntity.builder()
                     .user(existingUser)
                     .category(existingCategory)
@@ -69,7 +70,7 @@ public class FixedTransactionService implements IFixedTransactionService {
         CategoryEntity existingCategory = categoryRepository
                 .findById(fixedtransactionDTO.getCategoryId())
                 .orElseThrow(() -> new DataNotFoundException(
-                        "Cannot find category with id " + fixedTransaction.getCategory().getCategoryId()));
+                        "Không tìm thấy danh mục có id: " + fixedTransaction.getCategory().getCategoryId()));
         // 2. Lưu lại giá trị `startDate` cũ
         LocalDate oldStartDate = fixedTransaction.getStartDate();
 
@@ -175,7 +176,7 @@ public class FixedTransactionService implements IFixedTransactionService {
             case "monthly":
                 return currentDate.plusMonths(1);
             default:
-                throw new IllegalArgumentException("Invalid repeat frequency: " + frequency);
+                throw new IllegalArgumentException("Tần suất lặp lại không hợp lệ: " + frequency);
         }
     }
 }

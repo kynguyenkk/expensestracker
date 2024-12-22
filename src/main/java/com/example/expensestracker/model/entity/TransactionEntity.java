@@ -32,7 +32,5 @@ public class TransactionEntity {
     private LocalDate transactionDate;
     @Column(name="note")
     private String note;
-    @Column(name="is_auto_import")
-    private boolean isAutoImport;
 
 }

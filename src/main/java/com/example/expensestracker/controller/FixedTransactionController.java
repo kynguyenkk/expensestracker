@@ -6,7 +6,7 @@ import com.example.expensestracker.model.dto.response.ApiResponse;
 import com.example.expensestracker.model.dto.response.FixedTransactionListResponse;
 import com.example.expensestracker.model.dto.response.FixedTransactionResponse;
 import com.example.expensestracker.model.entity.FixedTransactionEntity;
-import com.example.expensestracker.service.IFixedTransactionService;
+import com.example.expensestracker.service.InterfaceService.IFixedTransactionService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class FixedTransactionController {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             fixedTransactionService.updateFixedTransaction(fixedTransactionId,userId,fixedTransactionDTO);
-            return ResponseEntity.ok(new ApiResponse("success", "Update fixedtransaction successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật giao dịch cố định thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -68,7 +68,7 @@ public class FixedTransactionController {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             fixedTransactionService.deleteFixedTransaction(fixedTransactionId,userId);
-            return ResponseEntity.ok(new ApiResponse("success", "Delete category successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Xóa giao dịch cố định thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }

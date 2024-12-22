@@ -53,7 +53,7 @@ public class TransactionControlller {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.updateTransaction(transactionId,userId,transactionDTO);
-            return ResponseEntity.ok(new ApiResponse("success", "Update transaction successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật giao dịch thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -67,7 +67,7 @@ public class TransactionControlller {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.deleteTransaction(transactionId,userId);
-            return ResponseEntity.ok(new ApiResponse("success", "Delete category successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Xóa danh mục thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }

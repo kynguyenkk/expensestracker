@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     //select * from users where phoneNumber=?
     @Query("SELECT u.userId FROM UserEntity u")
     List<Long> findAllUserIds();
+    Optional<UserEntity> findByEmail(String email);
 }

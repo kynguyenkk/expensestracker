@@ -1,13 +1,11 @@
 package com.example.expensestracker.service;
 
-import com.example.expensestracker.exception.DataNotFoundException;
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.entity.CategoryEntity;
-import com.example.expensestracker.model.entity.UserEntity;
 import com.example.expensestracker.model.enums.Type;
 import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.UserRepository;
+import com.example.expensestracker.service.InterfaceService.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

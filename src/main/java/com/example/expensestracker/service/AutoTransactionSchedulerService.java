@@ -1,12 +1,11 @@
 package com.example.expensestracker.service;
 
 import com.example.expensestracker.repositories.UserRepository;
+import com.example.expensestracker.service.InterfaceService.IFixedTransactionService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class AutoTransactionSchedulerService {

@@ -6,6 +6,7 @@ import com.example.expensestracker.model.entity.CategoryLimitEntity;
 import com.example.expensestracker.repositories.CategoryLimitRepository;
 import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
+import com.example.expensestracker.service.InterfaceService.IReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

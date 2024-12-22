@@ -3,7 +3,7 @@ package com.example.expensestracker.controller;
 import com.example.expensestracker.model.dto.request.*;
 import com.example.expensestracker.model.dto.response.ApiResponse;
 import com.example.expensestracker.model.entity.UserEntity;
-import com.example.expensestracker.service.IUserService;
+import com.example.expensestracker.service.InterfaceService.IUserService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class UserController {
                return ResponseEntity.badRequest().body(new ApiResponse("error", errorsMessages));
            }
            if (!userRegisterDTO.getPassword().equals(userRegisterDTO.getRetypePassword())) {
-               return ResponseEntity.badRequest().body(new ApiResponse("error", "Passwords do not match"));
+               return ResponseEntity.badRequest().body(new ApiResponse("error", "Mật khẩu không khớp"));
            }
            UserEntity user = userService.createUser(userRegisterDTO);//return ResponseEntity.ok("Register successfully");
            return ResponseEntity.ok(new ApiResponse("success", "Đăng ký thành công"));
@@ -55,7 +56,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ApiResponse("error", "Mật khẩu mới không được trùng mật khẩu cũ"));
         }
         userService.changePassword(userDetails.getUsername(), changePasswordDTO);
-        return ResponseEntity.ok(new ApiResponse("success", "Password updated successfully"));
+        return ResponseEntity.ok(new ApiResponse("success", "Mật khẩu đã được cập nhật thành công"));
     }
 
     @PutMapping("")
@@ -66,7 +67,7 @@ public class UserController {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             userService.updateCategory(userId,userDTO);
-            return ResponseEntity.ok(new ApiResponse("success", "Update profile successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật hồ sơ thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -84,4 +85,48 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
+
+
+
+
+    // Endpoint để gửi OTP đến email
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@RequestBody SendOtpRequest sendOtpRequest) {
+        try {
+            userService.sendOtp(sendOtpRequest.getEmail());
+            return ResponseEntity.ok("OTP đã được gửi thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
+    }
+
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
+        try {
+            userService.verifyOtp(request.getEmail(), request.getOtp());
+            return ResponseEntity.ok("OTP đã xác minh thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
+    }
+
+    // Endpoint thay đổi mật khẩu khi quên mật khẩu
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            // Kiểm tra xem mật khẩu mới và xác nhận mật khẩu có khớp nhau không
+            if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(new ApiResponse("error", "Mật khẩu mới và mật khẩu xác nhận không khớp"));
+            }
+
+            // Gọi phương thức resetPassword trong service với đối tượng ResetPasswordRequest
+            userService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok("Đã đặt lại mật khẩu thành công");
+        } catch (Exception e) {
+            // Trả về lỗi nếu có ngoại lệ
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
+        }
+    }
+
 }

@@ -5,7 +5,7 @@ import com.example.expensestracker.model.dto.response.MonthlyTransactionResponse
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.repositories.TransactionRepository;
-import com.example.expensestracker.service.IFinanceService;
+import com.example.expensestracker.service.InterfaceService.IFinanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -29,21 +30,23 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private String phoneNumber;
     @Column(name="password",length = 255,nullable = false)
     private String password;
-    @Column(name = "is_active")
-    private boolean active;
-    @Column(name="full_name")
-    private String fullName;
-    @Column(name="birth_date")
-    private LocalDate birthDate;
-    @Column(name="gender")
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-    @Column(name="address")
-    private String address;
-    @Column(name="finacial_goal")
-    private BigDecimal financialGoal;
-    @Column(name="preferred_report")
-    private String preferredReport;
+    @Column(name = "otp_code", length = 10)
+    private String otpCode;
+    @Column(name = "otp_expiry")
+    private LocalDateTime otpExpiry;
+//    @Column(name="full_name")
+//    private String fullName;
+//    @Column(name="birth_date")
+//    private LocalDate birthDate;
+//    @Column(name="gender")
+//    @Enumerated(EnumType.STRING)
+//    private Gender gender;
+//    @Column(name="address")
+//    private String address;
+//    @Column(name="finacial_goal")
+//    private BigDecimal financialGoal;
+//    @Column(name="preferred_report")
+//    private String preferredReport;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntity> transactions;
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -79,5 +82,9 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    // Phương thức kiểm tra OTP đã hết hạn chưa
+    public boolean isOtpExpired() {
+        return otpExpiry != null && otpExpiry.isBefore(LocalDateTime.now());
     }
 }

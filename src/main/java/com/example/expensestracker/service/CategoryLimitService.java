@@ -9,6 +9,7 @@ import com.example.expensestracker.repositories.CategoryLimitRepository;
 import com.example.expensestracker.repositories.CategoryRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
+import com.example.expensestracker.service.InterfaceService.ICategoryLimitService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
