@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 
 public class OtpUtil {
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final int OTP_LENGTH = 6;
+    private static final int OTP_LENGTH = 4;
 
     public static String generateOtp() {
         StringBuilder otp = new StringBuilder();
