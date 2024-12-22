@@ -94,7 +94,7 @@ public class UserController {
     public ResponseEntity<?> sendOtp(@RequestBody SendOtpRequest sendOtpRequest) {
         try {
             userService.sendOtp(sendOtpRequest.getEmail());
-            return ResponseEntity.ok("OTP đã được gửi thành công");
+            return ResponseEntity.ok(new ApiResponse("success", "OTP đã được gửi thành công"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -105,7 +105,7 @@ public class UserController {
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
         try {
             userService.verifyOtp(request.getEmail(), request.getOtp());
-            return ResponseEntity.ok("OTP đã xác minh thành công");
+            return ResponseEntity.ok(new ApiResponse("success", "OTP đã xác minh thành công"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -122,7 +122,7 @@ public class UserController {
 
             // Gọi phương thức resetPassword trong service với đối tượng ResetPasswordRequest
             userService.resetPassword(resetPasswordRequest);
-            return ResponseEntity.ok("Đã đặt lại mật khẩu thành công");
+            return ResponseEntity.ok(new ApiResponse("success","Đã đặt lại mật khẩu thành công"));
         } catch (Exception e) {
             // Trả về lỗi nếu có ngoại lệ
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
