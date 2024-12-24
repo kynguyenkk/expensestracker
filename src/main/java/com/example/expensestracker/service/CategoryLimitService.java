@@ -43,18 +43,23 @@ public class CategoryLimitService implements ICategoryLimitService {
             int previousMonth = (currentMonth == 1) ? 12 : currentMonth - 1;
             int previousYear = (currentMonth == 1) ? currentYear - 1 : currentYear;
 
-            List<CategoryLimitEntity> previousLimits = categoryLimitRepository.findByUserIdAndMonthAndYear(userId, previousMonth, previousYear);
-
+            List<CategoryLimitEntity> previousLimits = categoryLimitRepository.findByUserIdAndMonthAndYear(userId, previousMonth, previousYear)
+                    .stream()
+                    .filter(limit -> "expense".equalsIgnoreCase(String.valueOf(limit.getCategory().getType()))
+                            || "Tiết kiệm".equalsIgnoreCase(limit.getCategory().getCategoryName())) // Thêm điều kiện lọc tên danh mục
+                    .collect(Collectors.toList());
             // Nếu không có giới hạn tháng trước, tạo giá trị mặc định 0%
             if (previousLimits.isEmpty()) {
                 List<CategoryLimitEntity> defaultLimits = categoryRepository.findAll().stream()
+                        .filter(category -> "expense".equalsIgnoreCase(String.valueOf(category.getType()))
+                                || "Tiết kiệm".equalsIgnoreCase(category.getCategoryName())) // Thêm điều kiện lọc tên danh mục
                         .map(category -> {
                             CategoryLimitEntity defaultLimit = new CategoryLimitEntity();
                             defaultLimit.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
                             defaultLimit.setCategory(category);
                             defaultLimit.setMonth(currentMonth);
                             defaultLimit.setYear(currentYear);
-                            defaultLimit.setPercentLimit(BigDecimal.ZERO);
+                            defaultLimit.setLimitExpense(BigDecimal.ZERO);
                             return defaultLimit;
                         }).collect(Collectors.toList());
                 categoryLimitRepository.saveAll(defaultLimits);
@@ -67,7 +72,7 @@ public class CategoryLimitService implements ICategoryLimitService {
                             newLimit.setCategory(limit.getCategory());
                             newLimit.setMonth(currentMonth);
                             newLimit.setYear(currentYear);
-                            newLimit.setPercentLimit(limit.getPercentLimit());
+                            newLimit.setLimitExpense(limit.getLimitExpense());
                             return newLimit;
                         }).collect(Collectors.toList());
                 categoryLimitRepository.saveAll(newLimits);
@@ -93,6 +98,15 @@ public class CategoryLimitService implements ICategoryLimitService {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         List<CategoryLimitEntity> entities = limits.stream()
+                .filter(limit -> {
+                    CategoryEntity category = categoryRepository
+                            .findById(limit.getCategoryId())
+                            .orElseThrow(() -> new DataNotFoundException("Cannot find category"));
+
+                    // Chỉ xử lý danh mục loại "expense"
+                    return "expense".equalsIgnoreCase(String.valueOf(category.getType()))
+                            || "Tiết kiệm".equalsIgnoreCase(category.getCategoryName());
+                })
                 .map(limit -> {
                     CategoryEntity existingCategory = categoryRepository
                             .findById(limit.getCategoryId())
@@ -104,7 +118,7 @@ public class CategoryLimitService implements ICategoryLimitService {
 
                     if (existingLimit != null) {
                         // Nếu đã tồn tại, cập nhật giới hạn
-                        existingLimit.setPercentLimit(limit.getPercentLimit());
+                        existingLimit.setLimitExpense(limit.getLimitExpense());
                         return existingLimit;
                     } else {
                         // Nếu chưa có, tạo mới
@@ -113,7 +127,7 @@ public class CategoryLimitService implements ICategoryLimitService {
                         newLimit.setCategory(existingCategory);
                         newLimit.setMonth(month);
                         newLimit.setYear(year);
-                        newLimit.setPercentLimit(limit.getPercentLimit());
+                        newLimit.setLimitExpense(limit.getLimitExpense());
                         return newLimit;
                     }
                 }).collect(Collectors.toList());
@@ -132,16 +146,6 @@ public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) throws
     if (categoryLimits.isEmpty()) {
         throw new DataNotFoundException("No category limits found for the current month.");
     }
-
-    // Lấy tổng thu nhập của người dùng trong tháng
-    BigDecimal totalIncome = transactionRepository
-            .sumSpentByIncomeAndUser(userId, currentMonth, currentYear);
-
-    // Nếu tổng thu nhập là null hoặc 0, không thể tính toán
-    if (totalIncome == null || totalIncome.compareTo(BigDecimal.ZERO) == 0) {
-        throw new IllegalStateException("Total income is zero or not available for calculations.");
-    }
-
     // Tính toán phần trăm còn lại
     return categoryLimits.stream()
             .map(limit -> {
@@ -153,20 +157,20 @@ public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) throws
                 totalSpent = (totalSpent != null) ? totalSpent : BigDecimal.ZERO;
 
                 // Lấy giới hạn chi tiêu
-                BigDecimal limitPercent = limit.getPercentLimit();
+                BigDecimal limitExpense = limit.getLimitExpense();
 
                 // Nếu giới hạn là 0%, không cần tính toán
-                if (limitPercent.compareTo(BigDecimal.ZERO) == 0) {
+                if (limitExpense.compareTo(BigDecimal.ZERO) == 0) {
                     return new CategoryLimitResponse(
                             limit.getCategory().getCategoryId(),
-                            limitPercent,
+                            limitExpense,
                             BigDecimal.ZERO
                     );
                 }
 
                 // Tính toán phần trăm chi tiêu đã sử dụng so với giới hạn
                 BigDecimal spentPercent = totalSpent.multiply(BigDecimal.valueOf(100))
-                        .divide(totalIncome.multiply(limitPercent).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP), 2, RoundingMode.HALF_UP);
+                        .divide(limitExpense, 2, RoundingMode.HALF_UP);
 
                 BigDecimal remainingPercent = BigDecimal.valueOf(100).subtract(spentPercent);
 
@@ -178,7 +182,7 @@ public List<CategoryLimitResponse> calculateRemainingPercent(Long userId) throws
                 // Trả về thông tin
                 return new CategoryLimitResponse(
                         limit.getCategory().getCategoryId(),
-                        limitPercent,
+                        limitExpense,
                         remainingPercent
                 );
             })

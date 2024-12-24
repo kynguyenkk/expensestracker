@@ -13,6 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CategoryLimitResponse {
     private Long categoryId;
-    private BigDecimal percentLimit;
+    private BigDecimal limitExpense;
     private BigDecimal remainingPercent; // Phần trăm còn lại
 }

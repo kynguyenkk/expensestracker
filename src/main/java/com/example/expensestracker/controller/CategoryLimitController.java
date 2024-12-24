@@ -85,7 +85,7 @@ public class CategoryLimitController {
 
         // Nếu có, trả về danh sách giới hạn
         List<CategoryLimitResponse> response = currentLimits.stream()
-                .map(limit -> new CategoryLimitResponse(limit.getCategory().getCategoryId(), limit.getPercentLimit(), limit.getPercentLimit()))
+                .map(limit -> new CategoryLimitResponse(limit.getCategory().getCategoryId(), limit.getLimitExpense(), limit.getLimitExpense()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }

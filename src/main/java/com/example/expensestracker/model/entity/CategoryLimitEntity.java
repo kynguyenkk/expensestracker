@@ -26,6 +26,6 @@ public class CategoryLimitEntity {
     private int month;
     @Column(name = "year")
     private int year;
-    @Column(name = "percent_limit")
-    private BigDecimal percentLimit;
+    @Column(name = "limit_expense")
+    private BigDecimal limitExpense;
 }

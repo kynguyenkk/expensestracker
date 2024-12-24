@@ -15,5 +15,5 @@ public class CategoryLimitDTO {
     private Long categoryId;
     private int month;
     private int year;
-    private BigDecimal percentLimit;
+    private BigDecimal limitExpense;
 }

@@ -46,5 +46,12 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("SELECT SUM(t.amount) FROM TransactionEntity t WHERE t.user.userId = ?1 AND MONTH(t.transactionDate) = ?2 AND YEAR(t.transactionDate) = ?3 AND t.category.type = 'expense'")
     BigDecimal sumExpenseByUserAndMonthAndYear(Long userId, int month, int year);
 
+    @Query("SELECT t.category.categoryId, t.category.categoryName, SUM(t.amount) " +
+            "FROM TransactionEntity t " +
+            "WHERE t.user.userId = :userId AND t.category.type = 'INCOME' AND MONTH(t.transactionDate) = :month AND YEAR(t.transactionDate) = :year " +
+            "GROUP BY t.category.categoryId, t.category.categoryName")
+    List<Object[]> sumIncomeByCategoryAndUserAndMonthAndYear(@Param("userId") Long userId,
+                                                             @Param("month") int month,
+                                                             @Param("year") int year);
 
 }

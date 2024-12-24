@@ -1,7 +1,7 @@
 package com.example.expensestracker.service.InterfaceService;
 
-import com.example.expensestracker.model.dto.response.MonthlyReportResponse;
+import com.example.expensestracker.model.dto.response.MonthlyExpenseReportResponse;
 
 public interface IReportService {
-    MonthlyReportResponse getMonthlyReport(Long userId, int month, int year);
+    public MonthlyExpenseReportResponse getMonthlyExpenseReport(Long userId, int month, int year);
 }
