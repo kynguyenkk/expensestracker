@@ -175,6 +175,8 @@ public class FixedTransactionService implements IFixedTransactionService {
                 return currentDate.plusWeeks(1);
             case "monthly":
                 return currentDate.plusMonths(1);
+            case "yearly":
+                return currentDate.plusYears(1);
             default:
                 throw new IllegalArgumentException("Tần suất lặp lại không hợp lệ: " + frequency);
         }

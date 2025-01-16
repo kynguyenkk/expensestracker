@@ -17,6 +17,18 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     @Query("SELECT t FROM TransactionEntity t WHERE t.transactionId = ?1 AND t.user.userId = ?2")
     Optional<TransactionEntity> findByTransactionIdAndUserId(Long transactionId, Long userId);
 
+    @Query("SELECT t FROM TransactionEntity t " +
+            "WHERE t.user.userId = :userId " +
+            "AND (" +
+            "(:categoryName IS NOT NULL AND LOWER(t.category.categoryName) LIKE LOWER(CONCAT('%', :categoryName, '%'))) " +
+            "OR (:note IS NOT NULL AND LOWER(t.note) LIKE LOWER(CONCAT('%', :note, '%'))) " +
+            "OR (:amount IS NOT NULL AND t.amount = :amount))")
+    List<TransactionEntity> searchTransactions(
+            @Param("userId") Long userId,
+            @Param("categoryName") String categoryName,
+            @Param("note") String note,
+            @Param("amount") Long amount);
+
     @Query("SELECT t FROM TransactionEntity t WHERE t.user.userId = ?1 AND t.transactionDate BETWEEN  ?2 AND  ?3 ORDER BY t.transactionDate ASC")
     List<TransactionEntity> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 

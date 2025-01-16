@@ -11,7 +11,6 @@ import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.service.InterfaceService.ITransactionService;
-import com.example.expensestracker.util.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +54,7 @@ public class TransactionService implements ITransactionService {
     }
     @Override
     public List<TransactionResponse> searchTransactions(Long userId, String categoryName, String note, Long amount) {
-        List<TransactionEntity> transactions = transactionRepository.findAll(
-                TransactionSpecification.filterTransactions(userId, categoryName, note, amount));
+        List<TransactionEntity> transactions = transactionRepository.searchTransactions(userId, categoryName, note, amount);
         return transactions.stream()
                 .map(TransactionResponse::fromEntity)
                 .collect(Collectors.toList());
