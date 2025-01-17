@@ -16,12 +16,12 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<TransactionEntity, Long>, JpaSpecificationExecutor<TransactionEntity> {
     @Query("SELECT t FROM TransactionEntity t WHERE t.transactionId = ?1 AND t.user.userId = ?2")
     Optional<TransactionEntity> findByTransactionIdAndUserId(Long transactionId, Long userId);
-
+    
     @Query("SELECT t FROM TransactionEntity t " +
             "WHERE t.user.userId = :userId " +
             "AND (" +
-            "(:categoryName IS NOT NULL AND LOWER(t.category.categoryName) LIKE LOWER(CONCAT('%', :categoryName, '%'))) " +
-            "OR (:note IS NOT NULL AND LOWER(t.note) LIKE LOWER(CONCAT('%', :note, '%'))) " +
+            "(:categoryName IS NOT NULL AND :categoryName <> '' AND LOWER(t.category.categoryName) LIKE LOWER(CONCAT('%', :categoryName, '%'))) " +
+            "OR (:note IS NOT NULL AND :note <> '' AND LOWER(t.note) LIKE LOWER(CONCAT('%', :note, '%'))) " +
             "OR (:amount IS NOT NULL AND t.amount = :amount))")
     List<TransactionEntity> searchTransactions(
             @Param("userId") Long userId,
