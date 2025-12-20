@@ -29,26 +29,23 @@ public class AndroidSecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
-                                    String.format("/api/users/register"),
-                                    String.format("/%s/users/login", apiPrefix),
-                                    String.format("/%s/users/**", apiPrefix),
-                                    String.format("/api/categories"),
-                                    String.format("/api/categories/**"),
-                                    String.format("/api/transactions"),
-                                    String.format("/api/transactions/**"),
-                                    String.format("/api/finance"),
-                                    String.format("/api/**"),
-                                    String.format("api/fixed-transactions/**"),
-                                    String.format("api/fixed-transactions"),
-                                    String.format("api/category-limits"),
-                                    String.format("api/category-limits/**"),
-                                    String.format("api/report"),
-                                    String.format("api/report/**")
-                            )
+                                    String.format("%s/users/register", apiPrefix),
+                                    String.format("%s/users/login", apiPrefix),
+                                    String.format("%s/users/refresh-token", apiPrefix),
+                                    String.format("%s/users/send-otp", apiPrefix),
+                                    String.format("%s/users/verify-otp", apiPrefix),
+                                    String.format("%s/users/reset-password", apiPrefix))
                             .permitAll()
                             .anyRequest().authenticated();
-                });
-
+                })
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.deny())
+                        .contentTypeOptions(contentType -> contentType.disable())
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000))
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; script-src 'self'; object-src 'none';")));
         return http.build();
     }
 }

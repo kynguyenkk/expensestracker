@@ -1,12 +1,19 @@
 package com.example.expensestracker.service;
 
 import com.example.expensestracker.exception.DataNotFoundException;
-import com.example.expensestracker.model.dto.request.*;
+import com.example.expensestracker.model.dto.request.ChangePasswordDTO;
+import com.example.expensestracker.model.dto.request.ResetPasswordRequest;
+import com.example.expensestracker.model.dto.request.UserDTO;
+import com.example.expensestracker.model.dto.request.UserRegisterDTO;
+import com.example.expensestracker.model.dto.response.LoginResponse;
+import com.example.expensestracker.model.entity.TokenBlackList;
 import com.example.expensestracker.model.entity.UserEntity;
+import com.example.expensestracker.repositories.TokenBlackListRepository;
 import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.service.InterfaceService.IUserService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import com.example.expensestracker.util.OtpUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,34 +24,32 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class UserService implements IUserService {
-
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final long LOCK_TIME_DURATION = 15;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlackListRepository tokenBlackListRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
     @Override
     public UserEntity createUser(UserRegisterDTO userRegisterDTO) throws Exception {
-        //register user
         String phoneNumber = userRegisterDTO.getPhoneNumber();
         String email = userRegisterDTO.getEmail();
-        //kiểm tra xem số điện thoại đã tồn tại hay chưa
         if (userRepository.existsByPhoneNumber(phoneNumber) && userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Số tài khoản và email đã tồn tại!");
-        }else if(userRepository.existsByEmail(email)) {
+        } else if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email đã tồn tại!");
-        }else if(userRepository.existsByPhoneNumber(phoneNumber)) {
+        } else if (userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DataIntegrityViolationException("Số điện thoại đã tồn tại!");
         }
-        //convert from userDTO -> userEntity
         UserEntity newUser = UserEntity.builder()
                 .phoneNumber(userRegisterDTO.getPhoneNumber())
                 .email(userRegisterDTO.getEmail())
@@ -52,47 +57,103 @@ public class UserService implements IUserService {
                 .build();
         return userRepository.save(newUser);
     }
+
     @Override
-    public UserEntity updateCategory( Long userId, UserDTO userDTO) throws Exception{
+    public UserEntity updateCategory(Long userId, UserDTO userDTO) throws Exception {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy profile"));
-        //kiểm tra xem số điện thoại đã tồn tại hay chưa
-        if (userRepository.existsByPhoneNumber(userDTO.getPhoneNumber()) && userRepository.existsByEmail(userDTO.getEmail())) {
+        if (userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())
+                && userRepository.existsByEmail(userDTO.getEmail())) {
             throw new DataIntegrityViolationException("Phone number and Email already exists");
-        }else if(userRepository.existsByEmail(userDTO.getEmail())) {
+        } else if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new DataIntegrityViolationException("Email already exists");
-        }else if(userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())) {
+        } else if (userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())) {
             throw new DataIntegrityViolationException("Phone number already exists");
         }
-        // Thực hiện cập nhật nếu danh mục không phải là mặc định
-       // user.setFullName(userDTO.getFullName());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setEmail(userDTO.getEmail());
-//        user.setGender(Gender.valueOf(userDTO.getGender()));
-//        user.setBirthDate(userDTO.getBirthDate());
-//        user.setAddress(userDTO.getAddress());
         userRepository.save(user);
         return user;
     }
+
     @Override
-    public String login(String phoneNumber, String password) throws Exception {
+    public LoginResponse login(String phoneNumber, String password) throws Exception {
         Optional<UserEntity> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if (optionalUser.isEmpty()) {
-            throw new  UsernameNotFoundException("Số tài khoản hoặc mật khẩu không hợp lệ!");
+            throw new UsernameNotFoundException("Số tài khoản hoặc mật khẩu không hợp lệ!");
         }
-        //return optionalUser.get();//muốn trả JWT token ?
-        UserEntity existingUser = optionalUser.get();
-        //check password
-        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Số tài khoản hoặc mật khẩu không đúng!");
+        UserEntity user = optionalUser.get();
+        if (!user.isAccountNonLocked()) {
+            if (user.getLockTime() != null &&
+                    user.getLockTime().plusMinutes(LOCK_TIME_DURATION).isBefore(LocalDateTime.now())) {
+
+                user.setAccountNonLocked(true);
+                user.setLockTime(null);
+                user.setFailedLoginAttempts(0);
+                userRepository.save(user);
+            } else {
+                throw new BadCredentialsException("Tài khoản đang bị khóa do nhập sai nhiều lần. Vui lòng thử lại sau "
+                        + LOCK_TIME_DURATION + " phút.");
+            }
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            int currentAttempts = user.getFailedLoginAttempts() + 1;
+            user.setFailedLoginAttempts(currentAttempts);
+            if (currentAttempts >= MAX_FAILED_ATTEMPTS) {
+                user.setAccountNonLocked(false);
+                user.setLockTime(LocalDateTime.now());
+                userRepository.save(user);
+
+                throw new BadCredentialsException("Bạn đã nhập sai quá " + MAX_FAILED_ATTEMPTS
+                        + " lần. Tài khoản bị khóa trong " + LOCK_TIME_DURATION + " phút.");
+            } else {
+                userRepository.save(user);
+                int remaining = MAX_FAILED_ATTEMPTS - currentAttempts;
+                throw new BadCredentialsException(
+                        "Mật khẩu không đúng. Bạn còn " + remaining + " lần thử trước khi bị khóa.");
+            }
+        }
+        if (user.getFailedLoginAttempts() > 0) {
+            user.setFailedLoginAttempts(0);
+            user.setLockTime(null);
+            userRepository.save(user);
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 phoneNumber, password,
-                existingUser.getAuthorities()
-        );
-        //authenticate with Java Spring security
+                user.getAuthorities());
         authenticationManager.authenticate(authenticationToken);
-        return jwtTokenUtil.generateToken(existingUser);
+        String accessToken = jwtTokenUtil.generateToken(user);
+        String refreshToken = jwtTokenUtil.generateRefreshToken(user);
+
+        user.setRefreshToken(refreshToken);
+        user.setRefreshTokenExpiry(LocalDateTime.now().plusDays(15));
+        userRepository.save(user);
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public LoginResponse refreshToken(String requestRefreshToken) throws Exception {
+        String phoneNumber = jwtTokenUtil.extractPhoneNumber(requestRefreshToken);
+        UserEntity user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        if (user.getRefreshToken() == null || !user.getRefreshToken().equals(requestRefreshToken)) {
+            throw new BadCredentialsException("Refresh token không hợp lệ hoặc đã bị thu hồi");
+        }
+        if (user.isRefreshTokenExpired()) {
+            throw new BadCredentialsException("Refresh token đã hết hạn, vui lòng đăng nhập lại");
+        }
+        if (!jwtTokenUtil.validateToken(requestRefreshToken, user)) {
+            throw new BadCredentialsException("Token lỗi");
+        }
+        String newAccessToken = jwtTokenUtil.generateToken(user);
+        return LoginResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(requestRefreshToken)
+                .build();
     }
 
     @Override
@@ -100,79 +161,96 @@ public class UserService implements IUserService {
         UserEntity user = userRepository.findByPhoneNumber(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng"));
 
-        // Kiểm tra mật khẩu hiện tại
         if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Mật khẩu hiện tại không đúng");
         }
-
-        // Cập nhật mật khẩu mới
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
     }
 
     @Override
     public void sendOtp(String email) {
-        // Kiểm tra xem người dùng có tồn tại không
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng có email này"));
 
-        // Kiểm tra xem OTP đã tồn tại và còn hiệu lực chưa
         if (user.getOtpExpiry() != null && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
             throw new IllegalStateException("OTP đã được gửi và chưa hết hạn");
         }
-
-        // Tạo mã OTP
         String otp = OtpUtil.generateOtp();
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(1); // Đặt thời gian hết hạn là 1 phút
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(1);
 
-        // Lưu OTP và thời gian hết hạn vào UserEntity
-        user.setOtpCode(otp);
+        user.setOtpCode(passwordEncoder.encode(otp));
         user.setOtpExpiry(expiresAt);
-        userRepository.save(user); // Lưu vào cơ sở dữ liệu
+        userRepository.save(user);
 
-        // Gửi OTP qua email
         String subject = "Mã OTP của bạn";
         String body = "Mã OTP của bạn là: " + otp;
-        emailService.sendEmail(email, subject, body); // Gửi email
+        emailService.sendEmail(email, subject, body);
     }
+
     @Override
-    public void verifyOtp(String email, String otp) {
+    public String verifyOtp(String email, String otp) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy người dùng có email này"));
 
-        // Kiểm tra OTP có khớp không và đã hết hạn chưa
-        if (user.getOtpCode() == null || !user.getOtpCode().equals(otp)) {
+        if (user.getOtpCode() == null || !passwordEncoder.matches(otp, user.getOtpCode())) {
             throw new DataIntegrityViolationException("OTP không hợp lệ");
         }
         if (user.isOtpExpired()) {
             throw new DataIntegrityViolationException("OTP đã hết hạn");
         }
-
-        // Xóa OTP sau khi xác minh thành công
+        String rawToken = java.util.UUID.randomUUID().toString();
+        String hashedToken = passwordEncoder.encode(rawToken);
+        user.setResetPasswordToken(hashedToken);
+        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(5));
         user.setOtpCode(null);
         user.setOtpExpiry(null);
-        userRepository.save(user); // Lưu lại sau khi xóa OTP
+        userRepository.save(user);
+        return rawToken;
     }
+
     @Override
+    @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        // Kiểm tra người dùng có tồn tại không
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy người dùng có email này"));
+        if (user.getResetPasswordToken() == null
+                || !passwordEncoder.matches(request.getResetToken(), user.getResetPasswordToken())) {
+            throw new BadCredentialsException("Token không hợp lệ");
+        }
 
-        // Kiểm tra mật khẩu mới không phải null hoặc rỗng
+        if (user.isResetTokenExpired()) {
+            throw new BadCredentialsException("Token đổi mật khẩu đã hết hạn, vui lòng thực hiện lại từ đầu");
+        }
+
         if (request.getNewPassword() == null || request.getConfirmPassword() == null ||
                 !request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new IllegalArgumentException("Mật khẩu mới và mật khẩu xác nhận không khớp hoặc rỗng");
         }
 
-        // Mã hóa mật khẩu mới
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
-
-        // Cập nhật mật khẩu đã mã hóa vào người dùng
         user.setPassword(encodedPassword);
-
-        // Lưu lại người dùng với mật khẩu mới đã mã hóa
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiry(null);
         userRepository.save(user);
     }
 
+    @Override
+    public void logout(String token) {
+        String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
+        UserEntity user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        user.setRefreshToken(null);
+        user.setRefreshTokenExpiry(null);
+        userRepository.save(user);
+
+        Date expiration = jwtTokenUtil.extractExpiration(token);
+        if (expiration.after(new Date())) {
+            TokenBlackList blackListToken = TokenBlackList.builder()
+                    .token(token)
+                    .expiryDate(expiration)
+                    .build();
+            tokenBlackListRepository.save(blackListToken);
+        }
+    }
 }

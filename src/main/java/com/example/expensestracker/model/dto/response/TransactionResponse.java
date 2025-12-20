@@ -49,44 +49,4 @@ public class TransactionResponse {
         response.categoryName = entity.getCategory().getCategoryName();
         return response;
     }
-//    private List<TransactionResponse> generateFixedTransactionResponses(FixedTransactionEntity fixedTransaction, LocalDate startDate, LocalDate endDate) {
-//        List<TransactionResponse> responses = new ArrayList<>();
-//
-//        // Lặp qua các ngày từ startDate đến endDate theo tần suất của giao dịch cố định
-//        LocalDate current = fixedTransaction.getStartDate().isAfter(startDate) ? fixedTransaction.getStartDate() : startDate;
-//        if (fixedTransaction.getEndDate() != null && fixedTransaction.getEndDate().isBefore(endDate)) {
-//            endDate = fixedTransaction.getEndDate();
-//        }
-//
-//        while (!current.isAfter(endDate)) {
-//            // Tạo TransactionResponse cho ngày hiện tại
-//            TransactionResponse response = TransactionResponse.builder()
-//                    .transactionId(null) // Giao dịch cố định, không có transactionId
-//                    .categoryName(fixedTransaction.getCategory().getCategoryName())
-//                    .amount(fixedTransaction.getAmount())
-//                    .transactionDate(current)
-//                    .note(fixedTransaction.getTitle()) // Giao dịch cố định không có ghi chú
-//                    .build();
-//
-//            responses.add(response);
-//
-//            // Tiến tới ngày tiếp theo dựa trên tần suất lặp
-//            switch (fixedTransaction.getRepeatFrequency()) {
-//                case daily:
-//                    current = current.plusDays(1);
-//                    break;
-//                case weekly:
-//                    current = current.plusWeeks(1);
-//                    break;
-//                case monthly:
-//                    current = current.plusMonths(1);
-//                    break;
-//                case yearly:
-//                    current = current.plusYears(1);
-//                    break;
-//            }
-//        }
-//
-//        return responses;
-//    }
 }

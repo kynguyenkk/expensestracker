@@ -42,14 +42,6 @@ public class CategoryLimitController {
         return ResponseEntity.ok(new ApiResponse("success", "Cập nhật giới hạn chi tiêu thành công"));
     }
 
-    // Tính toán phần trăm còn lại của giới hạn chi tiêu
-//    @GetMapping("/remaining")
-//    public List<CategoryLimitResponse> getRemainingPercent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-//        String token = authorizationHeader.substring(7); // Loại bỏ tiền tố "Bearer "
-//        // Trích xuất userId từ token
-//        Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
-//        return categoryLimitService.calculateRemainingPercent(userId);
-//    }
     @GetMapping("/remaining")
     public ResponseEntity<?> getRemainingPercent(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {

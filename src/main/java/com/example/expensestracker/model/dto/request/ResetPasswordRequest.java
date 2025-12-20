@@ -10,7 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 public class ResetPasswordRequest {
     private String email;
-    private String newPassword;  // Mật khẩu mới
-    private String confirmPassword;  // Xác nhận mật khẩu mới
+    private String resetToken;
+    private String newPassword;
+    private String confirmPassword;
 
 }

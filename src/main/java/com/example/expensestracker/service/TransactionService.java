@@ -80,44 +80,4 @@ public class TransactionService implements ITransactionService {
                 .orElseThrow(() -> new DataNotFoundException("Không thể xóa giao dịch"));
         transactionRepository.delete(transaction);
     }
-
-
-
-
-//    @Scheduled(cron = "0 0 0 * * ?") // Chạy mỗi ngày lúc 00:00
-//    public void generateTransactionsFromFixed() {
-//        List<FixedTransactionEntity> fixedTransactions = fixedTransactionRepository.findByUserId(null); // Lấy tất cả
-//        LocalDate today = LocalDate.now();
-//
-//        for (FixedTransactionEntity fixedTransaction : fixedTransactions) {
-//            if (shouldGenerateTransaction(fixedTransaction, today)) {
-//                TransactionEntity transaction = new TransactionEntity();
-//                transaction.setUser(fixedTransaction.getUser());
-//                transaction.setCategory(fixedTransaction.getCategory());
-//                transaction.setAmount(fixedTransaction.getAmount());
-//                transaction.setTransactionDate(today);
-//                transaction.setFixedTransaction(fixedTransaction);
-//                transactionRepository.save(transaction);
-//            }
-//        }
-//    }
-//
-//    private boolean shouldGenerateTransaction(FixedTransactionEntity fixedTransaction, LocalDate date) {
-//        if (fixedTransaction.getEndDate() != null && date.isAfter(fixedTransaction.getEndDate())) {
-//            return false;
-//        }
-//        // Kiểm tra tần suất
-//        switch (fixedTransaction.getRepeatFrequency()) {
-//            case daily:
-//                return true;
-//            case weekly:
-//                return date.getDayOfWeek().getValue() == fixedTransaction.getStartDate().getDayOfWeek().getValue();
-//            case monthly:
-//                return date.getDayOfMonth() == fixedTransaction.getStartDate().getDayOfMonth();
-//            case yearly:
-//                return date.getDayOfYear() == fixedTransaction.getStartDate().getDayOfYear();
-//            default:
-//                return false;
-//        }
-//    }
 }

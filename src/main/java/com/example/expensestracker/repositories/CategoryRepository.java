@@ -17,12 +17,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
     @Query(value = "SELECT COUNT(c) > 0 FROM CategoryEntity c WHERE c.categoryName = ?1 AND c.type = ?2")
     boolean existsByCategoryNameAndType(String categoryName, Type type);
 
-//    @Query("SELECT COUNT(c) > 0 FROM CategoryEntity c WHERE c.user.userId = ?1")
-//    boolean existsByUserId(Long userId);
-
-//    @Query("SELECT c FROM CategoryEntity c WHERE c.user.userId = :userId AND c.isDefault = false")
-//    List<CategoryEntity> findUserCategories(@Param("userId") Long userId);
-
     @Query("SELECT c FROM CategoryEntity c WHERE c.categoryId = ?1")
     Optional<CategoryEntity> findByCategoryIdAndUserId(Long categoryId);
 
