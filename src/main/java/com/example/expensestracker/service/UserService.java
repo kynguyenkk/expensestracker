@@ -13,7 +13,7 @@ import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.service.InterfaceService.IUserService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import com.example.expensestracker.util.OtpUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -83,6 +83,7 @@ public class UserService implements IUserService {
             throw new UsernameNotFoundException("Số tài khoản hoặc mật khẩu không hợp lệ!");
         }
         UserEntity user = optionalUser.get();
+
         if (!user.isAccountNonLocked()) {
             if (user.getLockTime() != null &&
                     user.getLockTime().plusMinutes(LOCK_TIME_DURATION).isBefore(LocalDateTime.now())) {
@@ -96,18 +97,21 @@ public class UserService implements IUserService {
                         + LOCK_TIME_DURATION + " phút.");
             }
         }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             int currentAttempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(currentAttempts);
+
             if (currentAttempts >= MAX_FAILED_ATTEMPTS) {
                 user.setAccountNonLocked(false);
                 user.setLockTime(LocalDateTime.now());
-                userRepository.save(user);
+                userRepository.saveAndFlush(user);
 
                 throw new BadCredentialsException("Bạn đã nhập sai quá " + MAX_FAILED_ATTEMPTS
                         + " lần. Tài khoản bị khóa trong " + LOCK_TIME_DURATION + " phút.");
             } else {
-                userRepository.save(user);
+
+                userRepository.saveAndFlush(user);
                 int remaining = MAX_FAILED_ATTEMPTS - currentAttempts;
                 throw new BadCredentialsException(
                         "Mật khẩu không đúng. Bạn còn " + remaining + " lần thử trước khi bị khóa.");

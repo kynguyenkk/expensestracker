@@ -44,10 +44,12 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "reset_password_token_expiry")
     private LocalDateTime resetPasswordTokenExpiry;
     @Column(name = "failed_login_attempts")
+    @Builder.Default
     private int failedLoginAttempts = 0;
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
     @Column(name = "account_non_locked")
+    @Builder.Default
     private boolean accountNonLocked = true;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntity> transactions;
@@ -74,7 +76,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.accountNonLocked;
     }
 
     @Override
