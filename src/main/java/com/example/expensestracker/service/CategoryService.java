@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 public class CategoryService implements ICategoryService {
     @Autowired
@@ -22,16 +21,15 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<CategoryResponse> getExpenseCategories() {
-        // Tìm tất cả danh mục 'expense' cho người dùng và các danh mục mặc định
-        List<CategoryEntity> categories =  categoryRepository.findByType(Type.expense);
+        List<CategoryEntity> categories = categoryRepository.findByType(Type.expense);
         return categories.stream()
                 .map(CategoryResponse::fromCategory)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<CategoryResponse> getIncomeCategories() {
-        // Tìm tất cả danh mục 'expense' cho người dùng và các danh mục mặc định
-        List<CategoryEntity> categories =  categoryRepository.findByType(Type.income);
+        List<CategoryEntity> categories = categoryRepository.findByType(Type.income);
         return categories.stream()
                 .map(CategoryResponse::fromCategory)
                 .collect(Collectors.toList());

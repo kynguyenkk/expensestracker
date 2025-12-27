@@ -13,6 +13,7 @@ import com.example.expensestracker.repositories.UserRepository;
 import com.example.expensestracker.service.InterfaceService.IUserService;
 import com.example.expensestracker.util.JwtTokenUtil;
 import com.example.expensestracker.util.OtpUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,8 +31,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserService implements IUserService {
-    private static final int MAX_FAILED_ATTEMPTS = 5;
-    private static final long LOCK_TIME_DURATION = 15;
+    @Value("${app.security.login.max-attempts:5}")
+    private int maxFailedAttempts;
+
+    @Value("${app.security.login.lock-duration-minutes:15}")
+    private long lockTimeDuration;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlackListRepository tokenBlackListRepository;
@@ -86,7 +91,7 @@ public class UserService implements IUserService {
 
         if (!user.isAccountNonLocked()) {
             if (user.getLockTime() != null &&
-                    user.getLockTime().plusMinutes(LOCK_TIME_DURATION).isBefore(LocalDateTime.now())) {
+                    user.getLockTime().plusMinutes(lockTimeDuration).isBefore(LocalDateTime.now())) {
 
                 user.setAccountNonLocked(true);
                 user.setLockTime(null);
@@ -94,7 +99,7 @@ public class UserService implements IUserService {
                 userRepository.save(user);
             } else {
                 throw new BadCredentialsException("Tài khoản đang bị khóa do nhập sai nhiều lần. Vui lòng thử lại sau "
-                        + LOCK_TIME_DURATION + " phút.");
+                        + lockTimeDuration + " phút.");
             }
         }
 
@@ -102,17 +107,28 @@ public class UserService implements IUserService {
             int currentAttempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(currentAttempts);
 
-            if (currentAttempts >= MAX_FAILED_ATTEMPTS) {
+            if (currentAttempts >= maxFailedAttempts) {
                 user.setAccountNonLocked(false);
                 user.setLockTime(LocalDateTime.now());
                 userRepository.saveAndFlush(user);
 
-                throw new BadCredentialsException("Bạn đã nhập sai quá " + MAX_FAILED_ATTEMPTS
-                        + " lần. Tài khoản bị khóa trong " + LOCK_TIME_DURATION + " phút.");
+                // Send email notification
+                String subject = "Cảnh báo bảo mật: Tài khoản bị khóa";
+                String body = "Tài khoản của bạn đã bị khóa do nhập sai mật khẩu quá " + maxFailedAttempts + " lần. " +
+                        "Vui lòng thử lại sau " + lockTimeDuration + " phút hoặc sử dụng chức năng Quên mật khẩu.";
+                try {
+                    emailService.sendEmail(user.getEmail(), subject, body);
+                } catch (Exception e) {
+                    // Log error but don't fail the login process just because email failed
+                    e.printStackTrace();
+                }
+
+                throw new BadCredentialsException("Bạn đã nhập sai quá " + maxFailedAttempts
+                        + " lần. Tài khoản bị khóa trong " + lockTimeDuration + " phút.");
             } else {
 
                 userRepository.saveAndFlush(user);
-                int remaining = MAX_FAILED_ATTEMPTS - currentAttempts;
+                int remaining = maxFailedAttempts - currentAttempts;
                 throw new BadCredentialsException(
                         "Mật khẩu không đúng. Bạn còn " + remaining + " lần thử trước khi bị khóa.");
             }
@@ -236,6 +252,12 @@ public class UserService implements IUserService {
         user.setPassword(encodedPassword);
         user.setResetPasswordToken(null);
         user.setResetPasswordTokenExpiry(null);
+
+        // Unlock account on successful password reset
+        user.setAccountNonLocked(true);
+        user.setLockTime(null);
+        user.setFailedLoginAttempts(0);
+
         userRepository.save(user);
     }
 

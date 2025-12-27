@@ -14,10 +14,10 @@ public class EmailService {
 
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("kynguyen29032003@gmail.com"); // Địa chỉ email gửi
-        message.setTo(to); // Địa chỉ email người nhận
-        message.setSubject(subject); // Tiêu đề email
-        message.setText(body); // Nội dung email
+        message.setFrom("kynguyen29032003@gmail.com");
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
 
         javaMailSender.send(message);
     }
