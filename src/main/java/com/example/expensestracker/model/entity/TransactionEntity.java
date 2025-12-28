@@ -23,13 +23,14 @@ public class TransactionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="category_id",nullable = false)
     private CategoryEntity category;
+    @ManyToOne
+    @JoinColumn(name = "fixed_transaction_id" )
+    private FixedTransactionEntity fixedTransaction;
     @Column(name="amount")
     private BigDecimal amount;
     @Column(name="transaction_date")
     private LocalDate transactionDate;
     @Column(name="note")
     private String note;
-    @Column(name="is_auto_import")
-    private boolean isAutoImport;
 
 }

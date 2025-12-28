@@ -1,28 +1,22 @@
 package com.example.expensestracker.service;
 
 import com.example.expensestracker.exception.DataNotFoundException;
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
-import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.CategoryEntity;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.model.entity.UserEntity;
-import com.example.expensestracker.model.enums.CategoryType;
 import com.example.expensestracker.repositories.CategoryRepository;
+import com.example.expensestracker.repositories.FixedTransactionRepository;
 import com.example.expensestracker.repositories.TransactionRepository;
 import com.example.expensestracker.repositories.UserRepository;
-import com.example.expensestracker.util.TransactionSpecification;
-import lombok.Data;
+import com.example.expensestracker.service.InterfaceService.ITransactionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -31,6 +25,7 @@ public class TransactionService implements ITransactionService {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final FixedTransactionRepository fixedTransactionRepository;
 
     @Override
     public TransactionEntity createTransaction(TransactionDTO transactionDTO,Long userId) throws Exception {
@@ -59,8 +54,7 @@ public class TransactionService implements ITransactionService {
     }
     @Override
     public List<TransactionResponse> searchTransactions(Long userId, String categoryName, String note, Long amount) {
-        List<TransactionEntity> transactions = transactionRepository.findAll(
-                TransactionSpecification.filterTransactions(userId, categoryName, note, amount));
+        List<TransactionEntity> transactions = transactionRepository.searchTransactions(userId, categoryName, note, amount);
         return transactions.stream()
                 .map(TransactionResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -71,7 +65,7 @@ public class TransactionService implements ITransactionService {
                 .orElseThrow(() -> new DataNotFoundException("Giao dịch không tồn tại"));
         // Thực hiện cập nhật nếu danh mục không phải là mặc định
         CategoryEntity category = categoryRepository.findById(transactionDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + transactionDTO.getCategoryId()));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục có id: " + transactionDTO.getCategoryId()));
         transaction.setCategory(category);
         transaction.setTransactionDate(transactionDTO.getTransactionDate());
         transaction.setAmount(transactionDTO.getAmount());

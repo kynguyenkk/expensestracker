@@ -1,15 +1,11 @@
 package com.example.expensestracker.controller;
 
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
 import com.example.expensestracker.model.dto.response.ApiResponse;
-import com.example.expensestracker.model.dto.response.CategoryResponse;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;
 import com.example.expensestracker.service.TransactionService;
-import com.example.expensestracker.service.UserService;
 import com.example.expensestracker.util.JwtTokenUtil;
-import io.jsonwebtoken.Header;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +24,7 @@ public class TransactionControlller {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+
     @PostMapping("")
     public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionDTO transactionDTO, BindingResult bindingResult, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {
@@ -38,13 +35,13 @@ public class TransactionControlller {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errors);
+                return ResponseEntity.badRequest().body(new ApiResponse("error", errors));
             }
             TransactionEntity transactionEntity = transactionService.createTransaction(transactionDTO,userId);
             TransactionResponse transactionResponse = TransactionResponse.fromEntity(transactionEntity);
             return ResponseEntity.ok(transactionResponse);
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
     }
 
@@ -56,7 +53,7 @@ public class TransactionControlller {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.updateTransaction(transactionId,userId,transactionDTO);
-            return ResponseEntity.ok(new ApiResponse("success", "Update transaction successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Cập nhật giao dịch thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -70,7 +67,7 @@ public class TransactionControlller {
             // Trích xuất userId từ token
             Long userId = Long.valueOf(jwtTokenUtil.extractUserId(token));
             transactionService.deleteTransaction(transactionId,userId);
-            return ResponseEntity.ok(new ApiResponse("success", "Delete category successfully"));
+            return ResponseEntity.ok(new ApiResponse("success", "Xóa danh mục thành công"));
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse("error", e.getMessage()));
         }
@@ -95,7 +92,7 @@ public class TransactionControlller {
 
         return ResponseEntity.ok(transactions);
     }
-
+    
 
 
 }

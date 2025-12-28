@@ -1,6 +1,5 @@
-package com.example.expensestracker.service;
+package com.example.expensestracker.service.InterfaceService;
 
-import com.example.expensestracker.model.dto.request.CategoryDTO;
 import com.example.expensestracker.model.dto.request.TransactionDTO;
 import com.example.expensestracker.model.dto.response.TransactionResponse;
 import com.example.expensestracker.model.entity.TransactionEntity;

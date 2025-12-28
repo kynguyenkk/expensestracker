@@ -1,5 +1,6 @@
 package com.example.expensestracker.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.math.BigDecimal;
