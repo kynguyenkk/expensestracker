@@ -8,22 +8,25 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitingService rateLimitingService;
+    private List<String> sensitiveEndpoints;
 
-    // List of sensitive endpoints to apply rate limiting
     private static final List<String> SENSITIVE_ENDPOINTS = Arrays.asList(
             "/api/users/login",
             "/api/users/register",
@@ -33,14 +36,20 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-
+        if (sensitiveEndpoints == null) {
+            sensitiveEndpoints = new ArrayList<>();
+            sensitiveEndpoints.add( "/api/users/login");
+            sensitiveEndpoints.add( "/api/users/register");
+            sensitiveEndpoints.add( "/api/users/send-otp");
+            sensitiveEndpoints.add( "/api/users/verify-otp");
+            sensitiveEndpoints.add("/api/users/reset-password");
+        }
         String requestURI = request.getRequestURI();
 
-        // Check if the request targets a sensitive endpoint
-        boolean isSensitive = SENSITIVE_ENDPOINTS.stream().anyMatch(requestURI::startsWith);
+        boolean isSensitive = sensitiveEndpoints.stream().anyMatch(requestURI::startsWith);
 
         if (isSensitive) {
             String clientIp = getClientIp(request);
@@ -48,8 +57,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
             ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
             if (!probe.isConsumed()) {
+                log.warn("Rate limit exceeded for IP: {}", clientIp);
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.getWriter().write("Too many requests");
+                response.getWriter().write("Too many requests - Please try again later");
                 return;
             }
 

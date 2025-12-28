@@ -55,7 +55,6 @@ public class JwtTokenUtil {
 
     private Key getSignInKey() {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
-        // Keys.hmacShaKeyFor(Decoders.BASE64.decode("TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI="));
         return Keys.hmacShaKeyFor(bytes);
     }
 

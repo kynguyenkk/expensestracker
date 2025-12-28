@@ -59,9 +59,6 @@ public class StringCryptoConverter implements AttributeConverter<String, String>
             byte[] decryptedBytes = cipher.doFinal(decodedBytes);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            // Log lỗi nhưng không ném RuntimeException để tránh crash app nếu dữ liệu cũ
-            // sai format
-            // Có thể return null hoặc dbData gốc tùy logic
             System.err.println("Lỗi giải mã dữ liệu (có thể do sai Key/IV hoặc dữ liệu cũ): " + e.getMessage());
             return null;
         }
