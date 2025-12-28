@@ -46,7 +46,7 @@ public class AndroidSecurityConfig {
                                 .headers(headers -> headers
                                                 .frameOptions(frameOptions -> frameOptions.deny())
                                                 .contentTypeOptions(contentType -> {
-                                                }) // Enable X-Content-Type-Options: nosniff
+                                                })
                                                 .httpStrictTransportSecurity(hsts -> hsts
                                                                 .includeSubDomains(true)
                                                                 .maxAgeInSeconds(31536000))

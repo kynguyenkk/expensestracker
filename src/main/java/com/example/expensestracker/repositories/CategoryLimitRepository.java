@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CategoryLimitRepository extends JpaRepository<CategoryLimitEntity, Long> {
     @Query("SELECT l FROM CategoryLimitEntity  l WHERE l.user.userId = ?1 AND l.month = ?2 AND l.year = ?3")
-    List<CategoryLimitEntity> findByUserIdAndMonthAndYear(Long userId, int month, int year); // Lấy giới hạn cho người dùng trong một tháng, năm
+    List<CategoryLimitEntity> findByUserIdAndMonthAndYear(Long userId, int month, int year);
     @Query("SELECT COUNT(l) > 0 FROM CategoryLimitEntity l WHERE l.user.userId = ?1 AND l.month = ?2 AND l.year = ?3")
     boolean existsByUserIdAndMonthAndYear(Long userId, int month, int year);
     @Query("SELECT l FROM CategoryLimitEntity  l WHERE l.user.userId = ?1 AND l.category.categoryId = ?2 AND l.month = ?3 AND l.year = ?4")

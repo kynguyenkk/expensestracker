@@ -22,9 +22,6 @@ public class CategoryEntity {
     @Column(name="type",nullable = false)
     @Enumerated(EnumType.STRING)
     private Type type;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="user_id")
-//    private UserEntity user;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FixedTransactionEntity> fixedTransactionEntities ;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
